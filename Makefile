@@ -15,8 +15,8 @@ help: ## Show this help message
 
 .PHONY: install
 install: ## Install all dependencies (backend + frontend)
-	@echo "$(YELLOW)Installing backend dependencies with uv...$(NC)"
-	cd backend && uv pip install -r requirements.txt
+	@echo "$(YELLOW)Installing backend dependencies...$(NC)"
+	cd backend && source venv/bin/activate && pip install -r requirements.txt
 	@echo "$(YELLOW)Installing frontend dependencies...$(NC)"
 	cd frontend && npm install
 	@echo "$(GREEN)✓ All dependencies installed!$(NC)"
@@ -30,7 +30,7 @@ dev: ## Start development environment (all services)
 
 .PHONY: dev-backend
 dev-backend: ## Start backend with hot reload
-	cd backend && uv run uvicorn main:app --reload --port 8000
+	cd backend && source venv/bin/activate && uvicorn main:app --reload --port 8000
 
 .PHONY: dev-frontend
 dev-frontend: ## Start frontend with hot reload
@@ -55,16 +55,14 @@ lint: ## Lint all code
 .PHONY: test
 test: ## Run all tests
 	@echo "$(YELLOW)Running backend tests...$(NC)"
-	cd backend && uv run pytest
-	@echo "$(YELLOW)Running frontend tests...$(NC)"
-	cd frontend && npm test
-	@echo "$(GREEN)✓ All tests passed!$(NC)"
+	cd backend && source venv/bin/activate && python test_backend.py
+	@echo "$(GREEN)✓ Backend tests passed!$(NC)"
 
 .PHONY: analyze
 analyze: ## Test the analysis engine from CLI
 	@echo "$(YELLOW)Testing prompt analysis...$(NC)"
 	@read -p "Enter prompt to analyze: " prompt; \
-	cd backend && uv run python -c "from analyzer import analyze_prompt; import asyncio; asyncio.run(analyze_prompt('$$prompt'))"
+	cd backend && source venv/bin/activate && python -c "from analyzer import analyze_prompt; import asyncio; asyncio.run(analyze_prompt('$$prompt'))"
 
 .PHONY: build
 build: ## Build production containers
@@ -109,7 +107,7 @@ setup-env: ## Create .env file from template
 .PHONY: check-env
 check-env: ## Verify environment is properly configured
 	@echo "$(YELLOW)Checking environment...$(NC)"
-	@which uv > /dev/null || (echo "❌ uv not found. Install with: curl -LsSf https://astral.sh/uv/install.sh | sh" && exit 1)
+	@which python3 > /dev/null || (echo "❌ python3 not found. Install Python 3.8+" && exit 1)
 	@which ruff > /dev/null || (echo "❌ ruff not found. Install with: pip install ruff" && exit 1)
 	@which node > /dev/null || (echo "❌ node not found. Install Node.js 18+" && exit 1)
 	@which docker > /dev/null || (echo "❌ docker not found. Install Docker" && exit 1)

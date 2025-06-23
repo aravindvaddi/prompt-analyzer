@@ -96,7 +96,7 @@ redis_client = None
 
 # Request/Response models
 class AnalyzeRequest(BaseModel):
-    prompt: str = Field(..., max_length=2000, description="The prompt to analyze")
+    prompt: str = Field(..., min_length=1, max_length=2000, description="The prompt to analyze")
 
 class Suggestion(BaseModel):
     issue: str

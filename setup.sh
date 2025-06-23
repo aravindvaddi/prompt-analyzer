@@ -13,17 +13,19 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-# Check for uv
-if ! command -v uv &> /dev/null; then
-    echo "📦 Installing uv..."
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-fi
-
+# Python setup
 echo "🐍 Installing Python dependencies..."
 cd backend
-uv venv
-source .venv/bin/activate
-uv pip install -r requirements.txt
+
+# Create venv if it doesn't exist
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv venv
+fi
+
+# Activate and install dependencies
+source venv/bin/activate
+pip install -r requirements.txt
 cd ..
 
 echo "📦 Installing Node dependencies..."
@@ -39,5 +41,5 @@ echo "  2. Run: make dev"
 echo ""
 echo "Or start services individually:"
 echo "  - Redis: docker-compose up -d redis"
-echo "  - Backend: cd backend && uv run uvicorn main:app --reload"
+echo "  - Backend: cd backend && source venv/bin/activate && uvicorn main:app --reload"
 echo "  - Frontend: cd frontend && npm run dev"
