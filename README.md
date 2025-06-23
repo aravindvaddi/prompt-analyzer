@@ -1,166 +1,246 @@
-# Prompt Analyzer - VERIFIED WORKING INSTRUCTIONS
+# Prompt Analyzer
 
-A web application that analyzes prompts using Claude AI and provides actionable improvement suggestions.
+[![CI/CD Pipeline](https://github.com/aravindvaddi/prompt-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/aravindvaddi/prompt-analyzer/actions/workflows/ci.yml)
+
+A web application that analyzes prompts using Claude AI and provides actionable improvement suggestions with scoring and technique identification.
+
+## Features
+
+- 🔍 **Prompt Analysis**: Deep analysis of prompts using Claude AI
+- 📊 **Scoring System**: Get quality scores for your prompts
+- 💡 **Improvement Suggestions**: Actionable recommendations to enhance your prompts
+- 🎯 **Technique Identification**: Understand which prompting techniques are being used
+- ⚡ **Redis Caching**: Fast performance with intelligent caching
+- 🎨 **Modern UI**: Clean, responsive interface built with Next.js
+- 📚 **API Documentation**: Interactive API docs with Swagger UI
 
 ## Prerequisites
 
-1. **Python 3.8+**
-2. **Node.js 18+**
-3. **Redis** (install with `brew install redis` on Mac)
-4. **Claude API Key** from https://console.anthropic.com/
+- **Python 3.12+**
+- **Node.js 18+**
+- **Redis** (or use Docker)
+- **Claude API Key** from [Anthropic Console](https://console.anthropic.com/)
 
-## Quick Start (Tested & Verified)
+## Quick Start
 
-### 1. Set up environment
+### Option 1: Docker Compose (Recommended)
 
+1. Clone the repository:
 ```bash
-cd /Users/start/start/lisa/projects/prompt-analyzer
+git clone https://github.com/aravindvaddi/prompt-analyzer.git
+cd prompt-analyzer
+```
 
-# Create .env file and add your Claude API key
+2. Set up environment:
+```bash
 cp .env.example .env
-# Edit .env and replace 'your_claude_api_key_here' with your actual key
-
-# Verify environment is configured correctly
-cd backend && python check_env.py && cd ..
+# Edit .env and add your CLAUDE_API_KEY
 ```
 
-### 2. Start the services (3 terminals needed)
-
-**Terminal 1 - Redis:**
+3. Start all services:
 ```bash
-redis-server
+docker-compose up
 ```
 
-**Terminal 2 - Backend:**
+4. Access the application:
+- Frontend: http://localhost:3000
+- API: http://localhost:8000
+- API Docs: http://localhost:8000/docs
+
+### Option 2: Manual Setup
+
+1. Clone the repository:
+```bash
+git clone https://github.com/aravindvaddi/prompt-analyzer.git
+cd prompt-analyzer
+```
+
+2. Set up environment:
+```bash
+cp .env.example .env
+# Edit .env and add your CLAUDE_API_KEY
+```
+
+3. Install and start Redis:
+```bash
+# macOS
+brew install redis
+brew services start redis
+
+# Ubuntu/Debian
+sudo apt-get install redis-server
+sudo systemctl start redis
+
+# Or use Docker
+docker run -d -p 6379:6379 redis:7-alpine
+```
+
+4. Set up backend:
 ```bash
 cd backend
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+pip install -e ".[dev]"
+```
+
+5. Set up frontend:
+```bash
+cd ../frontend
+npm install
+```
+
+6. Start the services:
+
+**Terminal 1 - Backend:**
+```bash
+cd backend
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 uvicorn main:app --reload
 ```
 
-You should see:
-```
-INFO - Starting Prompt Analyzer Backend
-INFO - Claude API key found
-INFO - Connected to Redis at redis://localhost:6379
-INFO - Application startup complete
-INFO - Uvicorn running on http://127.0.0.1:8000
-```
-
-**Terminal 3 - Frontend:**
+**Terminal 2 - Frontend:**
 ```bash
 cd frontend
-npm install
 npm run dev
 ```
 
-You should see:
-```
-▲ Next.js 14.0.0
-- Local: http://localhost:3000
-✓ Ready
-```
+7. Access the application:
+- Frontend: http://localhost:3000
+- API: http://localhost:8000
+- API Docs: http://localhost:8000/docs
 
-### 3. Access the application
+## Development
 
-- **Frontend UI**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
+### Running Tests
 
-## Testing
-
-### Backend Tests
+**Backend:**
 ```bash
 cd backend
-python test_backend.py
+pytest -v --cov=.
 ```
 
-This runs comprehensive tests including error scenarios.
-
-### Manual API Test
+**Frontend:**
 ```bash
-curl -X POST http://localhost:8000/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "Tell me about Paris"}'
+cd frontend
+npm test
 ```
 
-## Troubleshooting
+### Linting
 
-### 500 Internal Server Error
-
-1. **Check the backend logs** - They now show detailed error messages
-2. **Verify Claude API key** is set correctly:
-   ```bash
-   cd backend && python check_env.py
-   ```
-3. **Common issues:**
-   - Missing or invalid CLAUDE_API_KEY
-   - Redis not running
-   - Port 8000 or 3000 already in use
-
-### Backend won't start
-
+**Backend:**
 ```bash
-# Check if dependencies are installed
-pip list | grep fastapi
-
-# If missing, reinstall:
-pip install -r requirements.txt
+cd backend
+ruff check .
+ruff format .
 ```
 
-### Frontend connection issues
+**Frontend:**
+```bash
+cd frontend
+npm run lint
+```
 
-1. Ensure backend is running on port 8000
-2. Check browser console for CORS errors
-3. Verify NEXT_PUBLIC_API_URL in .env is correct
-
-### See DEBUGGING.md for detailed troubleshooting
-
-## Project Structure
+### Project Structure
 
 ```
 prompt-analyzer/
 ├── backend/
-│   ├── main.py           # FastAPI application with logging
-│   ├── requirements.txt  # Python dependencies
-│   ├── test_backend.py   # Comprehensive test suite
-│   └── check_env.py      # Environment checker
+│   ├── main.py              # FastAPI application
+│   ├── pyproject.toml       # Python project configuration
+│   ├── tests/               # Backend tests
+│   └── Dockerfile           # Backend container
 ├── frontend/
-│   ├── app/
-│   │   ├── page.tsx      # Main UI component
-│   │   └── layout.tsx    # Layout wrapper
-│   └── package.json      # Node dependencies
-├── .env.example          # Environment template
-├── DEBUGGING.md          # Troubleshooting guide
-└── verify-startup.sh     # Startup verification script
+│   ├── app/                 # Next.js app directory
+│   ├── package.json         # Node dependencies
+│   └── Dockerfile           # Frontend container
+├── .github/
+│   └── workflows/
+│       └── ci.yml           # GitHub Actions CI/CD
+├── docker-compose.yml       # Docker composition
+├── .env.example             # Environment template
+└── README.md                # This file
 ```
 
-## Features
+## API Usage
 
-- ✅ Prompt analysis using Claude AI
-- ✅ Score and technique identification
-- ✅ Actionable improvement suggestions
-- ✅ Clean, responsive UI
-- ✅ Redis caching for performance
-- ✅ Comprehensive error handling
-- ✅ Detailed logging for debugging
+### Analyze a Prompt
 
-## Development Workflow
+```bash
+curl -X POST http://localhost:8000/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Tell me about the history of artificial intelligence"}'
+```
 
-1. **Make changes**
-2. **Run tests**: `python test_backend.py`
-3. **Check logs** for any issues
-4. **Verify in browser** at http://localhost:3000
+### Response Format
 
-## Team Standards
+```json
+{
+  "score": 7.5,
+  "techniques": ["Direct Question", "Open-ended"],
+  "suggestions": [
+    "Add specific context or time period",
+    "Include desired format or length",
+    "Specify particular aspects of interest"
+  ],
+  "improved_prompt": "Provide a comprehensive overview of artificial intelligence history from 1950 to present..."
+}
+```
 
-- Always test error cases, not just happy path
-- Add logging before claiming "it works"
-- Run the verification script before commits
-- Document any new dependencies
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `CLAUDE_API_KEY` | Your Anthropic API key | Required |
+| `REDIS_URL` | Redis connection URL | `redis://localhost:6379` |
+| `REDIS_TTL` | Cache TTL in seconds | `86400` (24 hours) |
+| `API_PORT` | Backend API port | `8000` |
+| `NEXT_PUBLIC_API_URL` | Frontend API URL | `http://localhost:8000` |
+
+## Troubleshooting
+
+### Common Issues
+
+1. **500 Internal Server Error**
+   - Check backend logs for detailed error messages
+   - Verify your Claude API key is set correctly
+   - Ensure Redis is running
+
+2. **Connection Refused**
+   - Ensure all services are running
+   - Check if ports 3000, 8000, and 6379 are available
+   - Verify environment variables are set correctly
+
+3. **Module Not Found**
+   - Backend: Run `pip install -e ".[dev]"`
+   - Frontend: Run `npm install`
+
+### Debug Mode
+
+Enable debug logging by setting:
+```bash
+export LOG_LEVEL=DEBUG
+```
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Built with [FastAPI](https://fastapi.tiangolo.com/) and [Next.js](https://nextjs.org/)
+- Powered by [Claude AI](https://www.anthropic.com/claude) from Anthropic
+- Caching with [Redis](https://redis.io/)
 
 ---
 
-**Built by the team with lessons learned the hard way!**
+**Built with ❤️ by the team**
