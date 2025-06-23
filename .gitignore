@@ -26,6 +26,7 @@ yarn-error.log*
 *.swp
 *.swo
 *~
+.ropeproject/
 
 # OS
 .DS_Store
@@ -41,3 +42,4 @@ coverage/
 
 # Logs
 *.log
+*.rdb
