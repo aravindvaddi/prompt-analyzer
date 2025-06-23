@@ -33,7 +33,8 @@ jobs:
       working-directory: ./backend
       run: |
         pip install --upgrade pip
-        pip install -e ".[dev]"
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio pytest-cov ruff
     
     - name: Run ruff
       working-directory: ./backend
